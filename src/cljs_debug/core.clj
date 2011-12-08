@@ -23,18 +23,20 @@
 (defn ^DefaultWebSocketFrame frame [s]
   (DefaultWebSocketFrame. s))
 
-(defn ^WebSocketClient make-client []
+(defn ^WebSocketClient make-client [uri]
   (let [f (WebSocketClientFactory.)
         cb (WSCallback.)]
-    (.newClient f (URI. "ws://localhost:9222/devtools/page/1") cb)))
+    (.newClient f (URI. uri) cb)))
 
 (comment
+  (def uri "ws://localhost:9222/devtools/page/3")
+
   (def rpc {"id" 0
             "method" "Runtime.evaluate"
-            "params" {"expression" "4+5"
+            "params" {"expression" "cljs_conj.core.foo(4,5)"
                       "returnByValue" true}})
 
-  (def c (make-client))
+  (def c (make-client uri))
   (.connect c)
   (.send c (frame (json-str rpc)))
   (.disconnect c)
