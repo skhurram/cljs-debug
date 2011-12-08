@@ -16,7 +16,7 @@
   (^void onDisconnect [this ^WebSocketClient c]
     (println "disconnected!"))
   (^void onMessage [this ^WebSocketClient c ^WebSocketFrame f]
-    (println "message" (.getTextData f)))
+    (println "message:" (.getTextData f)))
   (^void onError [this ^Throwable t]
     (.printStackStrace t)))
 
@@ -30,7 +30,7 @@
 
 (comment
   (read-json (slurp (URL. "http://localhost:9222/json")))
-  (def uri "ws://localhost:9222/devtools/page/6")
+  (def uri "ws://localhost:9222/devtools/page/8")
   (def c (make-client uri))
   (.connect c)
   (.disconnect c)
@@ -44,11 +44,16 @@
   (def dbg-enable {"id" 1
                    "method" "Debugger.enable"})
 
+  (def dbg-eval {"id" 0
+                 "method" "Runtime.evaluate"
+                 "params" {"expression" "cljs_conj.core.foo(5,5)"
+                           "returnByValue" true}})
+
   ;; seems to crash the WebSocket? - David
   (def bk1 {"id" 2
             "method" "Debugger.setBreakpoint"
-            "params" {"location" {"lineNumber" 14392
-                                  "scriptId" "main.js"}}})
+            "params" {"location" {"lineNumber" 14393
+                                  "scriptId" "22"}}})
 
   ;; these don't seem to work either - David
   (def pause {"id" 3
