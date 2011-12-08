@@ -62,9 +62,19 @@
   (def resume {"id" 4
               "method" "Debugger.resume"})
 
+  (def so {"id" 5
+           "method" "Debugger.stepOver"})
+
   (.send c (frame (json-str rpc)))
   (.send c (frame (json-str dbg-enable)))
   (.send c (frame (json-str bk1)))
   (.send c (frame (json-str pause)))
   (.send c (frame (json-str resume)))
+  (.send c (frame (json-str so)))
+
+  ;; tomorrow add bar and set the breakpoint on bar
+
+  ;; how can we map sexprs to line numbers? perhaps we can just do
+  ;; function level mappings. then when we step through function forms
+  ;; we can use the analyzer to get more accurate offsets.
   )
