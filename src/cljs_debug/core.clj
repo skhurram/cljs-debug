@@ -29,16 +29,37 @@
     (.newClient f (URI. uri) cb)))
 
 (comment
-  (def uri "ws://localhost:9222/devtools/page/3")
+  (read-json (slurp (URL. "http://localhost:9222/json")))
+  (def uri "ws://localhost:9222/devtools/page/6")
+  (def c (make-client uri))
+  (.connect c)
+  (.disconnect c)
 
   (def rpc {"id" 0
             "method" "Runtime.evaluate"
-            "params" {"expression" "cljs_conj.core.foo(4,5)"
+            "params" {"expression" "cljs_conj.core.foo(5,5)"
                       "returnByValue" true}})
 
-  (def c (make-client uri))
-  (.connect c)
+  ;; need to enable debugging first!
+  (def dbg-enable {"id" 1
+                   "method" "Debugger.enable"})
+
+  ;; seems to crash the WebSocket? - David
+  (def bk1 {"id" 2
+            "method" "Debugger.setBreakpoint"
+            "params" {"location" {"lineNumber" 14392
+                                  "scriptId" "main.js"}}})
+
+  ;; these don't seem to work either - David
+  (def pause {"id" 3
+              "method" "Debugger.pause"})
+
+  (def resume {"id" 4
+              "method" "Debugger.resume"})
+
   (.send c (frame (json-str rpc)))
-  (.disconnect c)
-  (read-json (slurp (URL. "http://localhost:9222/json")))
+  (.send c (frame (json-str dbg-enable)))
+  (.send c (frame (json-str bk1)))
+  (.send c (frame (json-str pause)))
+  (.send c (frame (json-str resume)))
   )
