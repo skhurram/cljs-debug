@@ -69,6 +69,8 @@
 (defn enable-debug! [id]
   (rpc id {"id" (rand-int 1000) "method" "Debugger.enable"}))
 
+;; this should take a file and store line numbers, so we can
+;; map back to to clojure
 (defn instrument [file]
   )
 
