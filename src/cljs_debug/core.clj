@@ -1,5 +1,6 @@
 (ns cljs-debug.core
-  (:use [clojure.data.json :only [json-str read-json]])
+  (:use [clojure.data.json :only [json-str read-json]]
+        [clojure.pprint :only [pprint]])
   (:require [cljs.compiler :as cljsc])
   (import [java.net URL URI]
           [org.jboss.netty.handler.codec.http.websocket
@@ -35,11 +36,70 @@
 ;; =============================================================================
 ;; Debugger
 
-(defn get-line-number [src]
+(def connections (atom {}))
+(def dbg-state (atom {}))
+(def dbg-db (atom {}))
+
+(defn list-pages []
+  (let [d (read-json (slurp (URL. "http://localhost:9222/json")))]
+    (pprint (zipmap (range) (map :title d)))))
+
+(defn connect-to! [n]
+  (let [page (-> (URL. "http://localhost:9222/json")
+                  slurp
+                  read-json
+                  (nth n))
+        wsurl (:webSocketDebuggerUrl page)]
+    (if wsurl
+      (let [c (make-client wsurl)]
+        (.connect c)
+        (swap! connections (fn [m] (assoc m n c))))
+      (println "Could not connect to:" (str "\"" (:title page) "\"")))))
+
+(defn close-all! []
+  (doseq [[id ^WebSocketClient c] connections]
+    (.close c))
+  (reset! connections {}))
+
+(defn rpc [id msg]
+  (let [^WebSocketClient c (get @connections id)]
+    (.send c (frame (json-str msg)))
+    nil))
+
+(defn enable-debug! [id]
+  (rpc id {"id" (rand-int 1000) "method" "Debugger.enable"}))
+
+(defn instrument [file]
+  )
+
+(defn search [form]
+  )
+
+(defn set-debug-ns! [ns]
+  )
+
+(defn set-breakpoint! [ln]
+  )
+
+(defn unset-breakpoint! [ln]
+  )
+
+(defn step-in! [])
+
+(defn step-out! [])
+
+(defn step-over! [])
+
+(defn locals []
+  )
+
+(defn dbg-eval [form]
   )
 
 (comment
-  (cljsc/emit (cljsc/analyze {} '(defn foo [a b] (+ a b))))
+  (with-out-str 
+    (cljsc/emit
+     (cljsc/analyze {} '(defn foo [a b] (+ a b)))))
 
   (read-json (slurp (URL. "http://localhost:9222/json")))
   (def uri "ws://localhost:9222/devtools/page/3")
@@ -47,10 +107,11 @@
   (.connect c)
   (.disconnect c)
 
-  (def rpc {"id" 0
-            "method" "Runtime.evaluate"
-            "params" {"expression" "cljs_conj.core.foo(5,5)"
-                      "returnByValue" true}})
+  (def simple-msg
+    {"id" 0
+     "method" "Runtime.evaluate"
+     "params" {"expression" "cljs_conj.core.foo(5,5)"
+               "returnByValue" true}})
 
   ;; need to enable debugging first!
   (def dbg-enable {"id" 1
