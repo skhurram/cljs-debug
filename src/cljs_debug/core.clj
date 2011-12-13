@@ -1,5 +1,6 @@
 (ns cljs-debug.core
   (:use [clojure.data.json :only [json-str read-json]])
+  (:require [cljs.compiler :as cljsc])
   (import [java.net URL URI]
           [org.jboss.netty.handler.codec.http.websocket
            WebSocketFrame
@@ -8,6 +9,9 @@
            WebSocketCallback
            WebSocketClient
            WebSocketClientFactory]))
+
+;; =============================================================================
+;; WebSockets
 
 (deftype WSCallback []
   WebSocketCallback
@@ -28,9 +32,17 @@
         cb (WSCallback.)]
     (.newClient f (URI. uri) cb)))
 
+;; =============================================================================
+;; Debugger
+
+(defn get-line-number [src]
+  )
+
 (comment
+  (cljsc/emit (cljsc/analyze {} '(defn foo [a b] (+ a b))))
+
   (read-json (slurp (URL. "http://localhost:9222/json")))
-  (def uri "ws://localhost:9222/devtools/page/8")
+  (def uri "ws://localhost:9222/devtools/page/3")
   (def c (make-client uri))
   (.connect c)
   (.disconnect c)
@@ -48,6 +60,12 @@
                  "method" "Runtime.evaluate"
                  "params" {"expression" "cljs_conj.core.foo(5,5)"
                            "returnByValue" true}})
+
+  ;; whoa
+  (def search {"id" 0
+               "method" "Debugger.searchInContent"
+               "params" {"scriptId" "22"
+                         "query" "cljs_conj.core.foo"}})
 
   ;; seems to crash the WebSocket? - David
   (def bk1 {"id" 2
@@ -67,6 +85,7 @@
 
   (.send c (frame (json-str rpc)))
   (.send c (frame (json-str dbg-enable)))
+  (.send c (frame (json-str search)))
   (.send c (frame (json-str bk1)))
   (.send c (frame (json-str pause)))
   (.send c (frame (json-str resume)))
