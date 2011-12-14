@@ -21,11 +21,13 @@ user=> (cljsc/build "example/" {:optimizations :simple :pretty-print true :outpu
 In order to debug the generated ClojureScript you will need a nightly build of Chromium.
 You can get that [here](http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html)
 
-Start the browser at the command line:
+Start the browser at the command line, for example:
 
 ```console
 /full/path/to/Chromium --remote-debugging-port=9222
 ```
+
+Open the <code>file:///full/path/to/example/index.html</code> in a new tab in your browser.
 
 Now we can connect to this page to debug it. Start a Leiningen REPL if you don't already
 have one running with <code>lein repl</code>
@@ -33,10 +35,10 @@ have one running with <code>lein repl</code>
 ```console
 user=> (use 'cljs-debug.core)
 user=> (list-pages)
-...
+{1 "ClojureScript Debugger", 0 "New Tab"}
 user=> (connect-to! 1)
-...
-user=> (debug-enable! 1)
+
+user=> (enable-debug! 1)
 ...
 ```
 
