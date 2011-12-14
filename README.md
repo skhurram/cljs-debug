@@ -14,12 +14,12 @@ line by starting a Leiningen REPL with <code>lein repl</code>. At the Clojure RE
 enter the following:
 
 ```console
-user=> (require '[cljs.compiler :as cljsc])
-user=> (cljsc/compile "")
+user=> (require '[cljs.closure :as cljsc])
+user=> (cljsc/build "example/" {:optimizations :simple :pretty-print true :output-to "example/main.js"})
 ```
 
 In order to debug the generated ClojureScript you will need a nightly build of Chromium.
-You can get that [here]:"http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html"
+You can get that [here](http://commondatastorage.googleapis.com/chromium-browser-continuous/index.html)
 
 Start the browser at the command line:
 
