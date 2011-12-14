@@ -3,4 +3,5 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.clojure/data.json "0.1.1"]
                  [org.jboss.netty/netty "3.2.7.Final"]
-                 [com.cgbystrom/netty-tools "1.2.7"]])
+                 [com.cgbystrom/netty-tools "1.2.7"]
+                 [org.clojars.brenton/clojurescript "0.0.862"]])
